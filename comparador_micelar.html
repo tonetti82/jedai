@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de Imágenes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+        }
+
+        .comparison-slider {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+            touch-action: pan-y pinch-zoom; /* Permitir scroll vertical y zoom */
+            background-color: transparent;
+        }
+
+        .before, .after {
+            position: relative;
+            width: 100%;
+            height: auto;
+            line-height: 0;
+        }
+
+        .after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            clip-path: inset(0 34% 0 0);
+        }
+
+        .slider-container {
+            position: absolute;
+            top: 0;
+            left: 66%;
+            width: 2px;
+            height: 100%;
+            transform: translateX(-50%);
+            z-index: 10;
+            cursor: ew-resize;
+            touch-action: none; /* Mantener control total solo en el slider */
+        }
+
+        .vertical-line {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .slider-handle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            cursor: ew-resize;
+            touch-action: none;
+        }
+
+        .slider-handle::before,
+        .slider-handle::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 2px;
+            background: #666;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .slider-handle::before {
+            left: 5px;
+        }
+
+        .slider-handle::after {
+            right: 5px;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            line-height: 0;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            color: #666;
+        }
+
+        .error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff4444;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .responsive-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            line-height: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="responsive-container">
+        <div class="comparison-slider">
+            <div class="loading">Cargando imágenes...</div>
+            <div class="before">
+                <img src="https://assets.zyrosite.com/mv0jvbezeJuo5bQr/micelar_post-dOq8Pz9Rb6TnVl3g.jpg" alt="Before">
+            </div>
+            <div class="after">
+                <img src="https://assets.zyrosite.com/mv0jvbezeJuo5bQr/micelar_pre-YBge0O2D3VTX1XNx.jpg" alt="After">
+            </div>
+            <div class="slider-container">
+                <div class="vertical-line"></div>
+                <div class="slider-handle"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.querySelector('.comparison-slider');
+        const sliderContainer = document.querySelector('.slider-container');
+        const afterImage = document.querySelector('.after');
+        const beforeImage = document.querySelector('.before img');
+        const afterImageElement = document.querySelector('.after img');
+        const loadingElement = document.querySelector('.loading');
+        let isResizing = false;
+        let imagesLoaded = 0;
+
+        function handleImageLoad() {
+            imagesLoaded++;
+            if (imagesLoaded === 2) {
+                loadingElement.style.display = 'none';
+                slider.style.height = `${beforeImage.offsetHeight}px`;
+                sliderContainer.style.display = 'block';
+            }
+        }
+
+        function handleImageError() {
+            loadingElement.style.display = 'none';
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error';
+            errorElement.textContent = 'Error al cargar las imágenes. Por favor, verifica las URLs.';
+            slider.appendChild(errorElement);
+            sliderContainer.style.display = 'none';
+        }
+
+        beforeImage.onload = handleImageLoad;
+        afterImageElement.onload = handleImageLoad;
+        beforeImage.onerror = handleImageError;
+        afterImageElement.onerror = handleImageError;
+
+        function getPositionX(event) {
+            return event.type.includes('mouse') ? event.pageX : event.touches[0].pageX;
+        }
+
+        function handleMove(event) {
+            if (!isResizing) return;
+
+            event.preventDefault();
+            
+            const sliderRect = slider.getBoundingClientRect();
+            const x = getPositionX(event) - sliderRect.left;
+            const percentage = (x / sliderRect.width) * 100;
+
+            const boundedPercentage = Math.min(100, Math.max(0, percentage));
+
+            afterImage.style.clipPath = `inset(0 ${100 - boundedPercentage}% 0 0)`;
+            sliderContainer.style.left = `${boundedPercentage}%`;
+        }
+
+        function handleDown(event) {
+            isResizing = true;
+            slider.classList.add('resizing');
+        }
+
+        function handleUp(event) {
+            isResizing = false;
+            slider.classList.remove('resizing');
+        }
+
+        sliderContainer.addEventListener('mousedown', handleDown);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleUp);
+
+        sliderContainer.addEventListener('touchstart', handleDown);
+        document.addEventListener('touchmove', handleMove, { passive: false });
+        document.addEventListener('touchend', handleUp);
+
+        slider.addEventListener('dragstart', (e) => e.preventDefault());
+
+        window.addEventListener('resize', () => {
+            if (imagesLoaded === 2) {
+                slider.style.height = `${beforeImage.offsetHeight}px`;
+            }
+        });
+    </script>
+</body>
+</html>
