@@ -85,23 +85,26 @@
         }
 
         .slider-handle::before,
-        .slider-handle::after {
-            content: '';
-            position: absolute;
-            width: 10px;
-            height: 2px;
-            background: #666;
-            top: 50%;
-            transform: translateY(-50%);
-        }
+.slider-handle::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 50%;
+    border: 8px solid transparent;
+}
 
-        .slider-handle::before {
-            left: 5px;
-        }
+.slider-handle::before {
+    left: 1px;
+    border-right-color: #666; /* Fletxa cap a la dreta */
+    transform: translateY(-50%);
+}
 
-        .slider-handle::after {
-            right: 5px;
-        }
+.slider-handle::after {
+    right: 1px;
+    border-left-color: #666; /* Fletxa cap a l'esquerra */
+    transform: translateY(-50%);
+}
 
         img {
             display: block;
