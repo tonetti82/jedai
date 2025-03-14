@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider con Efecto de Fundido y Desenfoque Suave</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            line-height: 0; /* Evita espais verticals innecessaris */
+            background-color: transparent;
+        }
+        
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        .slide.active-exit {
+            opacity: 0;
+            z-index: 3;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center; /* Centra la imatge */
+            transition: filter 3s ease-in-out;
+        }
+        
+        .slide.active-exit img {
+            filter: blur(2px); /* Efecte de desenfoc */
+        }
+        
+        .slide.active img {
+            filter: blur(0);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .dot.active {
+            background-color: white;
+        }
+        
+        /* Estils específics per a mòbils */
+        @media (max-width: 768px) {
+            .slider-container {
+                height: 50vh;
+            }
+            .slide img {
+                /* Mostra la imatge completa sense recort */
+                object-fit: contain;
+                object-position: center center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <div class="slider">
+            <div class="slide active">
+                <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_1-mv02EGD5RwF3PG0Z.jpg" alt="Imagen 1">
+            </div>
+            <div class="slide">
+                <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_2_post-mnlWeOG4E4HEjeqg.jpg" alt="Imagen 2">
+            </div>
+            <div class="slide">
+                <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_3_post-YNqBEe4QBlfBWvK6.jpg" alt="Imagen 3">
+            </div>
+        </div>
+        <div class="controls">
+            <div class="dot active" data-index="0"></div>
+            <div class="dot" data-index="1"></div>
+            <div class="dot" data-index="2"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+            let currentIndex = 0;
+            
+            function updateSlider() {
+                // Afegir la classe per a l'efecte de sortida
+                slides[currentIndex].classList.add('active-exit');
+                
+                // Reiniciar les classes després de la transició
+                setTimeout(() => {
+                    slides.forEach(slide => {
+                        slide.classList.remove('active');
+                        slide.classList.remove('active-exit');
+                    });
+                    
+                    // Actualitzar l'índex i activar la següent diapositiva
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    slides[currentIndex].classList.add('active');
+                    
+                    // Actualitzar els punts de navegació
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentIndex);
+                    });
+                }, 1000);
+            }
+            
+            // Configurar la navegació pels punts
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const newIndex = parseInt(this.getAttribute('data-index'));
+                    if (newIndex === currentIndex) return;
+                    
+                    slides.forEach(slide => {
+                        slide.classList.remove('active');
+                        slide.classList.remove('active-exit');
+                    });
+                    
+                    currentIndex = newIndex;
+                    slides[currentIndex].classList.add('active');
+                    
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentIndex);
+                    });
+                });
+            });
+            
+            // Interval automàtic per canviar de diapositiva
+            setInterval(updateSlider, 5500);
+        });
+    </script>
+</body>
+</html>
