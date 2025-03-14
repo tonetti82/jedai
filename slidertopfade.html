@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slider con Efecto de Fundido y Desenfoque Suave</title>
+    <title>Slider con Efecto de Fundido Cruzado</title>
    <style>
         * {
             margin: 0;
@@ -45,19 +45,27 @@
             top: 0;
             left: 0;
             opacity: 0;
-            transition: opacity 1.2s ease-in-out;
+            transition: opacity 1.5s ease-in-out;
             overflow: hidden;
             z-index: 1;
         }
         
+        /* Clase para la diapositiva actual */
         .slide.active {
             opacity: 1;
             z-index: 2;
         }
         
-        .slide.active-exit {
+        /* Clase para la próxima diapositiva que se fundirá */
+        .slide.next {
             opacity: 0;
             z-index: 3;
+            transition: opacity 1.5s ease-in-out;
+        }
+        
+        /* Clase para cuando el fundido está en progreso */
+        .slide.fade-in {
+            opacity: 1;
         }
         
         .slide img {
@@ -66,10 +74,6 @@
             object-fit: cover;
             object-position: center top;
             transition: filter 3s ease-in-out;
-        }
-        
-        .slide.active-exit img {
-            filter: blur(2px);
         }
         
         .slide.active img {
@@ -138,35 +142,90 @@
             const dots = document.querySelectorAll('.dot');
             let currentIndex = 0;
             let slideInterval;
-            const slideDelay = 5500; // Tiempo entre diapositivas en ms
+            const slideDelay = 3500; // Tiempo entre diapositivas en ms
+            const transitionTime = 1500; // Tiempo de transición en ms (debe coincidir con el CSS)
+            let isTransitioning = false;
             
-            // Función para actualizar el slider
+            // Función para actualizar el slider con fundido cruzado
             function updateSlider() {
-                // Añadir clase para efecto de salida a la diapositiva actual
-                slides[currentIndex].classList.add('active-exit');
+                if (isTransitioning) return;
+                isTransitioning = true;
                 
-                // Quitar la clase active-exit después de la transición
+                // Calcular el índice de la siguiente diapositiva
+                const nextIndex = (currentIndex + 1) % slides.length;
+                
+                // Preparar la próxima diapositiva
+                slides[nextIndex].classList.add('next');
+                
+                // Iniciar el fundido cruzado después de un pequeño retraso
                 setTimeout(() => {
+                    slides[nextIndex].classList.add('fade-in');
+                }, 50);
+                
+                // Completar la transición
+                setTimeout(() => {
+                    // Quitar clases de todas las diapositivas
                     slides.forEach(slide => {
-                        slide.classList.remove('active');
-                        slide.classList.remove('active-exit');
+                        slide.classList.remove('active', 'next', 'fade-in');
                     });
-                    
-                    // Actualizar el índice actual
-                    currentIndex = (currentIndex + 1) % slides.length;
                     
                     // Activar la nueva diapositiva
-                    slides[currentIndex].classList.add('active');
+                    slides[nextIndex].classList.add('active');
                     
-                    // Actualizar los puntos
-                    dots.forEach((dot, index) => {
-                        if (index === currentIndex) {
-                            dot.classList.add('active');
-                        } else {
-                            dot.classList.remove('active');
-                        }
+                    // Actualizar el índice actual
+                    currentIndex = nextIndex;
+                    
+                    // Actualizar los puntos de navegación
+                    updateDots();
+                    
+                    // Finalizar el estado de transición
+                    isTransitioning = false;
+                }, transitionTime);
+            }
+            
+            // Actualizar los puntos de navegación
+            function updateDots() {
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Cambiar manualmente a una diapositiva específica
+            function goToSlide(index) {
+                if (isTransitioning || index === currentIndex) return;
+                isTransitioning = true;
+                
+                // Preparar la diapositiva seleccionada
+                slides[index].classList.add('next');
+                
+                // Iniciar el fundido cruzado
+                setTimeout(() => {
+                    slides[index].classList.add('fade-in');
+                }, 50);
+                
+                // Completar la transición
+                setTimeout(() => {
+                    // Quitar clases de todas las diapositivas
+                    slides.forEach(slide => {
+                        slide.classList.remove('active', 'next', 'fade-in');
                     });
-                }, 1000); // Este tiempo debe ser menor que el intervalo principal
+                    
+                    // Activar la nueva diapositiva
+                    slides[index].classList.add('active');
+                    
+                    // Actualizar el índice actual
+                    currentIndex = index;
+                    
+                    // Actualizar los puntos de navegación
+                    updateDots();
+                    
+                    // Finalizar el estado de transición
+                    isTransitioning = false;
+                }, transitionTime);
             }
             
             // Restablecer el intervalo
@@ -179,30 +238,7 @@
             dots.forEach(dot => {
                 dot.addEventListener('click', function() {
                     const newIndex = parseInt(this.getAttribute('data-index'));
-                    
-                    // No hacer nada si ya está en esa diapositiva
-                    if (newIndex === currentIndex) return;
-                    
-                    // Quitar clases activas de todas
-                    slides.forEach(slide => {
-                        slide.classList.remove('active');
-                        slide.classList.remove('active-exit');
-                    });
-                    
-                    // Activar la nueva diapositiva
-                    currentIndex = newIndex;
-                    slides[currentIndex].classList.add('active');
-                    
-                    // Actualizar los puntos
-                    dots.forEach((dot, index) => {
-                        if (index === currentIndex) {
-                            dot.classList.add('active');
-                        } else {
-                            dot.classList.remove('active');
-                        }
-                    });
-                    
-                    // Reiniciar el intervalo cuando se hace clic en un punto
+                    goToSlide(newIndex);
                     resetInterval();
                 });
             });
