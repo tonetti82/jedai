@@ -15,7 +15,7 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
-            line-height: 0; /* Evita espais verticals innecessaris */
+            line-height: 0;
             background-color: transparent;
         }
         
@@ -59,12 +59,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center center; /* Centra la imatge */
+            object-position: center center;
             transition: filter 3s ease-in-out;
         }
         
         .slide.active-exit img {
-            filter: blur(2px); /* Efecte de desenfoc */
+            filter: blur(2px);
         }
         
         .slide.active img {
@@ -94,15 +94,10 @@
             background-color: white;
         }
         
-        /* Estils específics per a mòbils */
+        /* En aquest exemple mantenim la mateixa alçada en mòbil */
         @media (max-width: 768px) {
             .slider-container {
-                height: 50vh;
-            }
-            .slide img {
-                /* Mostra la imatge completa sense recort */
-                object-fit: contain;
-                object-position: center center;
+                height: 100vh; /* en comptes de 50vh */
             }
         }
     </style>
@@ -114,70 +109,4 @@
                 <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_1-mv02EGD5RwF3PG0Z.jpg" alt="Imagen 1">
             </div>
             <div class="slide">
-                <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_2_post-mnlWeOG4E4HEjeqg.jpg" alt="Imagen 2">
-            </div>
-            <div class="slide">
-                <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_3_post-YNqBEe4QBlfBWvK6.jpg" alt="Imagen 3">
-            </div>
-        </div>
-        <div class="controls">
-            <div class="dot active" data-index="0"></div>
-            <div class="dot" data-index="1"></div>
-            <div class="dot" data-index="2"></div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const slides = document.querySelectorAll('.slide');
-            const dots = document.querySelectorAll('.dot');
-            let currentIndex = 0;
-            
-            function updateSlider() {
-                // Afegir la classe per a l'efecte de sortida
-                slides[currentIndex].classList.add('active-exit');
-                
-                // Reiniciar les classes després de la transició
-                setTimeout(() => {
-                    slides.forEach(slide => {
-                        slide.classList.remove('active');
-                        slide.classList.remove('active-exit');
-                    });
-                    
-                    // Actualitzar l'índex i activar la següent diapositiva
-                    currentIndex = (currentIndex + 1) % slides.length;
-                    slides[currentIndex].classList.add('active');
-                    
-                    // Actualitzar els punts de navegació
-                    dots.forEach((dot, index) => {
-                        dot.classList.toggle('active', index === currentIndex);
-                    });
-                }, 1000);
-            }
-            
-            // Configurar la navegació pels punts
-            dots.forEach(dot => {
-                dot.addEventListener('click', function() {
-                    const newIndex = parseInt(this.getAttribute('data-index'));
-                    if (newIndex === currentIndex) return;
-                    
-                    slides.forEach(slide => {
-                        slide.classList.remove('active');
-                        slide.classList.remove('active-exit');
-                    });
-                    
-                    currentIndex = newIndex;
-                    slides[currentIndex].classList.add('active');
-                    
-                    dots.forEach((dot, index) => {
-                        dot.classList.toggle('active', index === currentIndex);
-                    });
-                });
-            });
-            
-            // Interval automàtic per canviar de diapositiva
-            setInterval(updateSlider, 5500);
-        });
-    </script>
-</body>
-</html>
+                <img src="https://assets.zyrosite.com/Y4Lx1eJnGqi5Z9Zz/top_banner_2_post-mnlWeOG4E4HEjeq
