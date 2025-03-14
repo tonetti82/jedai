@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slider con Efecto de Fundido y Desenfoque Suave</title>
-    <style>
+   <style>
         * {
             margin: 0;
             padding: 0;
@@ -62,6 +62,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center top; /* Asegura que se vea la parte superior de la imagen */
             transition: filter 3s ease-in-out;
         }
         
@@ -98,8 +99,12 @@
         
         @media (max-width: 768px) {
             .slider-container {
-                height: 50vh;
+                height: 100%; /* Cambiado de 50vh a 100% */
+                min-height: 250px; /* Asegura una altura mínima */
+                max-height: 350px; /* Limita la altura máxima */
             }
+            
+            /* Aquí puedes añadir ajustes específicos para móviles si es necesario */
         }
     </style>
 </head>
